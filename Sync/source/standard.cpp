@@ -13,7 +13,7 @@ int main()
     MPI_Request R;
 
     MPI_Send(&rank, 1, MPI_INT, (rank+1)%n_ranks, 0, MPI_COMM_WORLD);
-
+    // undefined behaviour; may work, may deadlock because of everyone send, none receive
     MPI_Recv(&neighbour_rank, 1, MPI_INT, (rank-1)%n_ranks, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     printf("My rank is %d and the neighbour is rank %d\n", rank, neighbour_rank);

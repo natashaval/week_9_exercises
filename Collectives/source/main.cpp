@@ -43,6 +43,14 @@ int main()
 
     // https://www.mpi-forum.org/docs/mpi-1.1/mpi-11-html/node72.html
     MPI_Scatter(buffer, N / n_proc, MPI_INT, buffer_other, N / n_proc, MPI_INT, 0, MPI_COMM_WORLD);
+    // SUM native here using only for loop; REDUCE only combine different processes
+    int local_sum = 0;
+    for (size_t i = 0; i < (N / n_proc); i++)
+    {
+        local_sum += buffer_other[i];
+    }
+    int global_sum = 0;
+    MPI_Reduce(&local_sum, &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // print data from receiving, including rank 0
     printf("This is value of receiving buffer (rank %d):", rank);
@@ -50,15 +58,16 @@ int main()
     {
         printf(" %d ", buffer_other[i]);
     }
-    printf("\n");
 
     // TODO: deallocate after finalize; but FAILED
     // ANSWER: should check rank == 0 because the allocation is only in rank 0; should not allocate 'buffer' in global because it will waste memory space for other ranks
     if (rank == 0)
     {
+        printf("\n Global sum: %d\n", global_sum);
         delete[] buffer;
     }
     delete[] buffer_other;
+    // delete[] global_sum;
 
     MPI_Finalize();
 
